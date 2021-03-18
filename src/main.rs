@@ -2,6 +2,9 @@
 #![no_std]
 // Disabling default entry points
 #![no_main]
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::test_runner)]
+#![reexport_test_harness_main = "test_main"]
 mod vga_buffer;
 use core::panic::PanicInfo;
 use core::fmt::Write;
@@ -15,6 +18,14 @@ fn panic(panic_info: &PanicInfo) -> ! {
     loop {}
 }
 
+#[cfg(test)]
+fn test_runner(tests: &[&dyn Fn()]) {
+    println!("Running {} tests", tests.len());
+    for test in tests {
+        test();
+    }
+}
+
 // This attribute disables the name mangling
 #[no_mangle]
 // This function is the entry point, we used _start because,
@@ -22,28 +33,16 @@ fn panic(panic_info: &PanicInfo) -> ! {
 // we have used is the extern "C", this is used to tell the compiler
 // to use the C calling convention for this function.
 pub extern "C" fn _start() -> ! {
-    vga_buffer::print_data();
-
+    //vga_buffer::print_data();
+    println!("Hello World{}", "!");
+    #[cfg(test)]
+    test_main();
     loop {}
 }
 
-
-
-
-
-/*let buffer = 0xb8000 as *mut u8;
-
-    for (num, &byte) in PRINT_MESSAGE.iter().enumerate() {
-        unsafe {
-            *buffer.offset(num as isize * 2) = byte;
-            *buffer.offset(num as isize * 2 + 1) = 0x9;
-        }
-    }*/
-
-//vga_buffer::print_something();
-//use core::fmt::Write;
-//vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
-//write!(vga_buffer::WRITER.lock(), ", some numbers: {} {}", 42, 1.337).unwrap();
-/*println!("Hello World{}", "!");
-panic!("Some panic message");
-*/
+#[test_case]
+fn trivial_assertion() {
+    print!("trivial assertion... ");
+    assert_eq!(1, 1);
+    println!("[ok]");
+}
