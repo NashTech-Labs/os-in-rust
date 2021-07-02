@@ -34,15 +34,16 @@ fn test_runner(tests: &[&dyn Fn()]) {
 // to use the C calling convention for this function.
 pub extern "C" fn _start() -> ! {
     //vga_buffer::print_data();
-    println!("Hello World{}", "!");
+    println!("Hello test case");
     #[cfg(test)]
-    test_main();
+        test_main();
     loop {}
 }
 
 #[test_case]
 fn trivial_assertion() {
-    print!("trivial assertion... ");
+    print!("first test case... ");
     assert_eq!(1, 1);
     println!("[ok]");
 }
+
